@@ -9,7 +9,7 @@ import (
 	"github.com/trezor/blockbook/bchain/coins/btc"
 )
 
-// FloRPC is an interface to JSON-RPC bitcoind service.
+// FloRPC is an interface to JSON-RPC flod service.
 type FloRPC struct {
 	*btc.BitcoinRPC
 }
