@@ -187,7 +187,7 @@ func (w *Worker) getAddressAliases(addresses map[string]struct{}) AddressAliases
 // GetTransaction reads transaction data from txid
 func (w *Worker) GetTransaction(txid string, spendingTxs bool, specificJSON bool) (*Tx, error) {
 	addresses := w.newAddressesMapForAliases()
-	tx, err := w.getTransaction(txid, spendingTxs, specificJSON, addresses)
+	tx, err := w.getTransaction(txid, spendingTxs, /*specificJSON*/ true, addresses)
 	if err != nil {
 		return nil, err
 	}
@@ -1159,7 +1159,7 @@ func (w *Worker) txFromTxid(txid string, bestHeight uint32, option AccountDetail
 		if ta == nil {
 			glog.Warning("DB inconsistency:  tx ", txid, ": not found in txAddresses")
 			// as fallback, get tx from backend
-			tx, err = w.getTransaction(txid, false, false, addresses)
+			tx, err = w.getTransaction(txid, false, true, addresses)
 			if err != nil {
 				return nil, errors.Annotatef(err, "getTransaction %v", txid)
 			}
@@ -1178,7 +1178,7 @@ func (w *Worker) txFromTxid(txid string, bestHeight uint32, option AccountDetail
 			tx = w.txFromTxAddress(txid, ta, blockInfo, bestHeight, addresses)
 		}
 	} else {
-		tx, err = w.getTransaction(txid, false, false, addresses)
+		tx, err = w.getTransaction(txid, false, true, addresses)
 		if err != nil {
 			return nil, errors.Annotatef(err, "getTransaction %v", txid)
 		}
@@ -1337,7 +1337,7 @@ func (w *Worker) GetAddress(address string, page int, txsOnPage int, option Acco
 			if option == AccountDetailsTxidHistory {
 				txids = append(txids, txid)
 			} else {
-				tx, err := w.txFromTxid(txid, bestheight, option, nil, addresses)
+				tx, err := w.txFromTxid(txid, bestheight, AccountDetailsTxHistory, nil, addresses)
 				if err != nil {
 					return nil, err
 				}
@@ -2146,7 +2146,7 @@ func (w *Worker) GetBlock(bid string, page int, txsOnPage int) (*Block, error) {
 	txi := 0
 	addresses := w.newAddressesMapForAliases()
 	for i := from; i < to; i++ {
-		txs[txi], err = w.txFromTxid(bi.Txids[i], bestheight, AccountDetailsTxHistoryLight, dbi, addresses)
+		txs[txi], err = w.txFromTxid(bi.Txids[i], bestheight, AccountDetailsTxHistory, dbi, addresses)
 		if err != nil {
 			return nil, err
 		}

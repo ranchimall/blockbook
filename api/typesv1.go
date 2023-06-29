@@ -2,7 +2,8 @@ package api
 
 import (
 	"math/big"
-
+	"encoding/json"
+	"strconv"
 	"github.com/trezor/blockbook/bchain"
 )
 
@@ -21,9 +22,10 @@ type VinV1 struct {
 	ScriptSig ScriptSigV1              `json:"scriptSig"`
 	AddrDesc  bchain.AddressDescriptor `json:"-"`
 	Addresses []string                 `json:"addresses"`
-	IsAddress bool                     `json:"-"`
-	Value     string                   `json:"value"`
-	ValueSat  big.Int                  `json:"-"`
+	IsAddress bool                     `json:"isAddress"`
+	Value     float64                  `json:"value"`
+	ValueSat  big.Int                  `json:"valueSat"`
+	Coinbase  string                   `json:"coinbase,omitempty"`
 }
 
 // ScriptPubKeyV1 is used for legacy api v1
@@ -32,14 +34,14 @@ type ScriptPubKeyV1 struct {
 	Asm       string                   `json:"asm,omitempty"`
 	AddrDesc  bchain.AddressDescriptor `json:"-"`
 	Addresses []string                 `json:"addresses"`
-	IsAddress bool                     `json:"-"`
+	IsAddress bool                     `json:"isAddress"`
 	Type      string                   `json:"type,omitempty"`
 }
 
 // VoutV1 is used for legacy api v1
 type VoutV1 struct {
-	Value        string         `json:"value"`
-	ValueSat     big.Int        `json:"-"`
+	Value        float64        `json:"value"`
+	ValueSat     big.Int        `json:"valueSat"`
 	N            int            `json:"n"`
 	ScriptPubKey ScriptPubKeyV1 `json:"scriptPubKey"`
 	Spent        bool           `json:"spent"`
@@ -52,7 +54,7 @@ type VoutV1 struct {
 type TxV1 struct {
 	Txid          string   `json:"txid"`
 	Version       int32    `json:"version,omitempty"`
-	Locktime      uint32   `json:"locktime,omitempty"`
+	Locktime      uint32   `json:"locktime"`
 	Vin           []VinV1  `json:"vin"`
 	Vout          []VoutV1 `json:"vout"`
 	Blockhash     string   `json:"blockhash,omitempty"`
@@ -60,24 +62,29 @@ type TxV1 struct {
 	Confirmations uint32   `json:"confirmations"`
 	Time          int64    `json:"time,omitempty"`
 	Blocktime     int64    `json:"blocktime"`
-	ValueOut      string   `json:"valueOut"`
-	ValueOutSat   big.Int  `json:"-"`
+	ValueOut      float64  `json:"valueOut"`
+	ValueOutSat   big.Int  `json:"valueOutSat"`
 	Size          int      `json:"size,omitempty"`
-	ValueIn       string   `json:"valueIn"`
-	ValueInSat    big.Int  `json:"-"`
-	Fees          string   `json:"fees"`
-	FeesSat       big.Int  `json:"-"`
+	ValueIn       float64  `json:"valueIn"`
+	ValueInSat    big.Int  `json:"valueInSat"`
+	Fees          float64  `json:"fees"`
+	FeesSat       big.Int  `json:"feesSat"`
 	Hex           string   `json:"hex"`
+	FloData       string   `json:"floData,omitempty"`
 }
 
 // AddressV1 is used for legacy api v1
 type AddressV1 struct {
 	Paging
 	AddrStr                 string   `json:"addrStr"`
-	Balance                 string   `json:"balance"`
-	TotalReceived           string   `json:"totalReceived"`
-	TotalSent               string   `json:"totalSent"`
-	UnconfirmedBalance      string   `json:"unconfirmedBalance"`
+	Balance                 float64  `json:"balance"`
+	BalanceSat              big.Int  `json:"balanceSat"`
+	TotalReceived           float64  `json:"totalReceived"`
+	TotalReceivedSat        big.Int  `json:"totalReceivedSat"`
+	TotalSent               float64  `json:"totalSent"`
+	TotalSentSat            big.Int  `json:"totalSentSat"`
+	UnconfirmedBalance      float64  `json:"unconfirmedBalance"`
+	UnconfirmedBalanceSat   big.Int  `json:"unconfirmedBalanceSat"`
 	UnconfirmedTxApperances int      `json:"unconfirmedTxApperances"`
 	TxApperances            int      `json:"txApperances"`
 	Transactions            []*TxV1  `json:"txs,omitempty"`
@@ -88,7 +95,7 @@ type AddressV1 struct {
 type AddressUtxoV1 struct {
 	Txid          string  `json:"txid"`
 	Vout          uint32  `json:"vout"`
-	Amount        string  `json:"amount"`
+	Amount        float64 `json:"amount"`
 	AmountSat     big.Int `json:"satoshis"`
 	Height        int     `json:"height,omitempty"`
 	Confirmations int     `json:"confirmations"`
@@ -100,6 +107,15 @@ type BlockV1 struct {
 	BlockInfo
 	TxCount      int     `json:"txCount"`
 	Transactions []*TxV1 `json:"txs,omitempty"`
+}
+
+type CoinSpecificDataV0 struct {
+	FloData       string
+}
+
+func stringToFloat(f string) float64 {
+	s, _ := strconv.ParseFloat(f, 64)
+	return s
 }
 
 // TxToV1 converts Tx to TxV1
@@ -119,9 +135,10 @@ func (w *Worker) TxToV1(tx *Tx) *TxV1 {
 			IsAddress: v.IsAddress,
 			Sequence:  v.Sequence,
 			Txid:      v.Txid,
-			Value:     v.ValueSat.DecimalString(d),
+			Value:     stringToFloat(v.ValueSat.DecimalString(d)),
 			ValueSat:  v.ValueSat.AsBigInt(),
 			Vout:      v.Vout,
+			Coinbase:  v.Coinbase,
 		}
 	}
 	voutV1 := make([]VoutV1, len(tx.Vout))
@@ -141,29 +158,39 @@ func (w *Worker) TxToV1(tx *Tx) *TxV1 {
 			SpentHeight: v.SpentHeight,
 			SpentIndex:  v.SpentIndex,
 			SpentTxID:   v.SpentTxID,
-			Value:       v.ValueSat.DecimalString(d),
+			Value:       stringToFloat(v.ValueSat.DecimalString(d)),
 			ValueSat:    v.ValueSat.AsBigInt(),
 		}
 	}
+	
+	//floData
+	var coinData CoinSpecificDataV0
+    // Notice the dereferencing asterisk *
+    err := json.Unmarshal(tx.CoinSpecificData, &coinData)
+    if err != nil {
+        return nil
+    }
+
 	return &TxV1{
 		Blockhash:     tx.Blockhash,
 		Blockheight:   tx.Blockheight,
 		Blocktime:     tx.Blocktime,
 		Confirmations: tx.Confirmations,
-		Fees:          tx.FeesSat.DecimalString(d),
+		Fees:          stringToFloat(tx.FeesSat.DecimalString(d)),
 		FeesSat:       tx.FeesSat.AsBigInt(),
 		Hex:           tx.Hex,
 		Locktime:      tx.Locktime,
 		Size:          tx.Size,
 		Time:          tx.Blocktime,
 		Txid:          tx.Txid,
-		ValueIn:       tx.ValueInSat.DecimalString(d),
+		ValueIn:       stringToFloat(tx.ValueInSat.DecimalString(d)),
 		ValueInSat:    tx.ValueInSat.AsBigInt(),
-		ValueOut:      tx.ValueOutSat.DecimalString(d),
+		ValueOut:      stringToFloat(tx.ValueOutSat.DecimalString(d)),
 		ValueOutSat:   tx.ValueOutSat.AsBigInt(),
 		Version:       tx.Version,
 		Vin:           vinV1,
 		Vout:          voutV1,
+		FloData:       coinData.FloData,	//(tx.CoinSpecificData).FloData
 	}
 }
 
@@ -180,14 +207,18 @@ func (w *Worker) AddressToV1(a *Address) *AddressV1 {
 	d := w.chainParser.AmountDecimals()
 	return &AddressV1{
 		AddrStr:                 a.AddrStr,
-		Balance:                 a.BalanceSat.DecimalString(d),
+		Balance:                 stringToFloat(a.BalanceSat.DecimalString(d)),
+		BalanceSat:              a.BalanceSat.AsBigInt(),
 		Paging:                  a.Paging,
-		TotalReceived:           a.TotalReceivedSat.DecimalString(d),
-		TotalSent:               a.TotalSentSat.DecimalString(d),
+		TotalReceived:           stringToFloat(a.TotalReceivedSat.DecimalString(d)),
+		TotalReceivedSat:         a.TotalReceivedSat.AsBigInt(),
+		TotalSent:               stringToFloat(a.TotalSentSat.DecimalString(d)),
+		TotalSentSat:            a.TotalSentSat.AsBigInt(),
 		Transactions:            w.transactionsToV1(a.Transactions),
 		TxApperances:            a.Txs,
 		Txids:                   a.Txids,
-		UnconfirmedBalance:      a.UnconfirmedBalanceSat.DecimalString(d),
+		UnconfirmedBalance:      stringToFloat(a.UnconfirmedBalanceSat.DecimalString(d)),
+		UnconfirmedBalanceSat:   a.UnconfirmedBalanceSat.AsBigInt(),
 		UnconfirmedTxApperances: a.UnconfirmedTxs,
 	}
 }
@@ -200,7 +231,7 @@ func (w *Worker) AddressUtxoToV1(au Utxos) []AddressUtxoV1 {
 		utxo := &au[i]
 		v1[i] = AddressUtxoV1{
 			AmountSat:     utxo.AmountSat.AsBigInt(),
-			Amount:        utxo.AmountSat.DecimalString(d),
+			Amount:        stringToFloat(utxo.AmountSat.DecimalString(d)),
 			Confirmations: utxo.Confirmations,
 			Height:        utxo.Height,
 			Txid:          utxo.Txid,

@@ -73,6 +73,19 @@
             </span>
             {{amountSpan $tx.ValueOutSat $data "txvalue copyable"}}
         </div>
+        <div class="col-sm-12 col-md-4">
+            <span class="fw-bold">floData: </span><span class="fst-normal"></span>
+            <script type="text/javascript">
+                (function(){
+                    let _script = document.currentScript;
+                    let floData = ({{$tx.CoinSpecificData}}).floData;
+                    if(floData) {
+                        _script.previousElementSibling.textContent = floData;
+                        _script.remove();
+                    } else _script.parentElement.remove();
+                })()
+            </script>
+        </div>
     </div>
 </div>
 {{end}}
