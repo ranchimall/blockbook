@@ -120,7 +120,7 @@ func NewPublicServer(binding string, certFiles string, db *db.RocksDB, chain bch
 	serveMux.Handle(path+"favicon.ico", http.FileServer(http.Dir("./static/")))
 	serveMux.Handle(path+"static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 	// default handler
-	serveMux.HandleFunc(path, s.htmlTemplateHandler(s.explorerIndex))
+	serveMux.HandleFunc(path, s.htmlTemplateHandler(s.explorerBlocks))
 	// default API handler
 	serveMux.HandleFunc(path+"api/", s.jsonHandler(s.apiIndex, apiV2))
 
@@ -146,6 +146,7 @@ func (s *PublicServer) ConnectFullPublicInterface() {
 	serveMux.Handle(path+"test-websocket.html", http.FileServer(http.Dir("./static/")))
 	if s.internalExplorer {
 		// internal explorer handlers
+		serveMux.HandleFunc(path+"status", s.htmlTemplateHandler(s.explorerIndex))
 		serveMux.HandleFunc(path+"tx/", s.htmlTemplateHandler(s.explorerTx))
 		serveMux.HandleFunc(path+"address/", s.htmlTemplateHandler(s.explorerAddress))
 		serveMux.HandleFunc(path+"xpub/", s.htmlTemplateHandler(s.explorerXpub))
