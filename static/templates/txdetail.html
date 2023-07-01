@@ -3,11 +3,16 @@
     <div class="row head">
         <div class="col-xs-7 col-md-8">
             <a href="/tx/{{$tx.Txid}}" class="ellipsis copyable txid">{{$tx.Txid}}</a>
-            {{if $tx.Rbf}}<span class="ps-1" tt="Replace-by-Fee (RBF) transaction, could be overridden"> RBF</span>{{end}}
+            {{if $tx.Rbf}}<span class="ps-1" tt="Replace-by-Fee (RBF) transaction, could be overridden">
+                RBF</span>{{end}}
         </div>
-        {{if $tx.Blocktime}}<div class="col-xs-5 col-md-4 text-end">{{if $tx.Confirmations}}mined{{else}}first seen{{end}} <span class="txvalue ms-1">{{unixTimeSpan $tx.Blocktime}}</span></div>{{end}}
+        {{if $tx.Blocktime}}<div class="col-xs-5 col-md-4 text-end">{{if $tx.Confirmations}}mined{{else}}first
+            seen{{end}} <span class="txvalue ms-1">{{unixTimeSpan $tx.Blocktime}}</span></div>{{end}}
         {{if $tx.ConfirmationETABlocks}}<div class="col-12 text-end">
-            <span class="badge bg-info fw-bold" style="text-transform: none;" tt="Estimated first potential confirmation of this transaction.">confirmation estimated in {{relativeTime $tx.ConfirmationETASeconds}} <span class="fw-normal ps-1">({{$tx.ConfirmationETABlocks}} blocks)</span></span>
+            <span class="badge bg-info fw-bold" style="text-transform: none;"
+                tt="Estimated first potential confirmation of this transaction.">confirmation estimated in
+                {{relativeTime $tx.ConfirmationETASeconds}} <span class="fw-normal ps-1">({{$tx.ConfirmationETABlocks}}
+                    blocks)</span></span>
         </div>
         {{end}}
     </div>
@@ -40,13 +45,16 @@
                 <div class="col-12{{if $vout.IsOwn}} tx-own{{end}}">
                     {{range $a := $vout.Addresses}}
                     <span class="ellipsis copyable">
-                        {{if and (ne $a $addr) $vout.IsAddress}}<a href="/address/{{$a}}">{{$a}}</a>{{else}}{{$a}}{{end}}
+                        {{if and (ne $a $addr) $vout.IsAddress}}<a
+                            href="/address/{{$a}}">{{$a}}</a>{{else}}{{$a}}{{end}}
                     </span>
                     {{else}}
                     Unparsed address
                     {{end}}
                     <span class="tx-amt">
-                        {{amountSpan $vout.ValueSat $data "copyable"}}{{if $vout.Spent}}<a class="spent" href="{{if $vout.SpentTxID}}/tx/{{$vout.SpentTxID}}{{else}}/spending/{{$tx.Txid}}/{{$vout.N}}{{end}}" tt="Spent">→</a>{{else}}<span class="unspent" tt="Unspent">×</span>
+                        {{amountSpan $vout.ValueSat $data "copyable"}}{{if $vout.Spent}}<a class="spent"
+                            href="{{if $vout.SpentTxID}}/tx/{{$vout.SpentTxID}}{{else}}/spending/{{$tx.Txid}}/{{$vout.N}}{{end}}"
+                            tt="Spent">→</a>{{else}}<span class="unspent" tt="Unspent">×</span>
                         {{end}}
                     </span>
                     </td>
@@ -60,30 +68,32 @@
     <div class="row footer">
         <div class="col-sm-12 col-md-4">
             {{if $tx.FeesSat}}{{$fpb := feePerByte $tx}}
-            Fee {{amountSpan $tx.FeesSat $data "txvalue copyable ms-3"}}{{if $fpb}} <span class="fw-normal small">({{$fpb}})</span>{{end}}
+            Fee {{amountSpan $tx.FeesSat $data "txvalue copyable ms-3"}}{{if $fpb}} <span
+                class="fw-normal small">({{$fpb}})</span>{{end}}
             {{end}}
         </div>
         <div class="col-sm-12 col-md-8 text-end">
             <span class="me-4">
-            {{if $tx.Confirmations}}
-            <span class="txvalue">{{formatUint32 $tx.Confirmations}}</span> confirmations
-            {{else}}
-            <span class="txvalue unconfirmed">Unconfirmed Transaction!</span>
-            {{end}}
+                {{if $tx.Confirmations}}
+                <span class="txvalue">{{formatUint32 $tx.Confirmations}}</span> confirmations
+                {{else}}
+                <span class="txvalue unconfirmed">Unconfirmed Transaction!</span>
+                {{end}}
             </span>
             {{amountSpan $tx.ValueOutSat $data "txvalue copyable"}}
         </div>
-        <div class="col-sm-12 col-md-4">
-            <span class="fw-bold">floData: </span><span class="fst-normal"></span>
+        <div class="mt-4">
+            <span class="fw-bold">floData: </span><span class="fst-normal copyable"></span>
             <script type="text/javascript">
-                (function(){
+                (function () {
                     let _script = document.currentScript;
-                    let floData = ({{$tx.CoinSpecificData}}).floData;
-                    if(floData) {
-                        _script.previousElementSibling.textContent = floData;
-                        _script.remove();
-                    } else _script.parentElement.remove();
-                })()
+                    let floData = ({{ $tx.CoinSpecificData }
+                }).floData;
+                if (floData) {
+                    _script.previousElementSibling.textContent = floData;
+                    _script.remove();
+                } else _script.parentElement.remove();
+                }) ()
             </script>
         </div>
     </div>
