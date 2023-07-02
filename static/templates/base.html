@@ -70,13 +70,8 @@
         .info-table tr>td:first-child{
             white-space: nowrap
         }
-        .ellipsis{
+        td.ellipsis{
             max-width: 50vw;
-        }
-        @media (max-width: 720px) {
-            .ellipsis{
-                max-width: 280px;
-            }
         }
         @media (min-width: 720px) {
             header nav{
@@ -85,6 +80,9 @@
             }
             #wrap{
                 margin-top: 4rem;
+            }
+            td.ellipsis{
+                max-width: 280px;
             }
         }
     </style>
