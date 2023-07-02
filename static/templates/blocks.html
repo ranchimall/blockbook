@@ -1,8 +1,6 @@
 {{define "specific"}}{{$blocks := .Blocks}}{{$data := .}}
 <div class="row">
-    <div class="col-md-6">
-        <h1>Blocks</h1>
-    </div>
+    <div class="col-md-6"><h1>Blocks</h1></div>
     <div class="col-md-6">{{if $blocks.Blocks}}{{template "paging" $data }}{{end}}</div>
 </div>
 {{if $blocks.Blocks}}
