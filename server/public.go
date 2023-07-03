@@ -1276,6 +1276,7 @@ func (s *PublicServer) apiTxSpecific(r *http.Request, apiVersion int) (interface
 
 func (s *PublicServer) apiAddress(r *http.Request, apiVersion int) (interface{}, error) {
 	var addressParam string
+	var err error
 	i := strings.LastIndexByte(r.URL.Path, '/')
 	if i > 0 {
 		addressParam = r.URL.Path[i+1:]
@@ -1283,10 +1284,18 @@ func (s *PublicServer) apiAddress(r *http.Request, apiVersion int) (interface{},
 	if len(addressParam) == 0 {
 		return nil, api.NewAPIError("Missing address", true)
 	}
+	onlyConfirmed := false
+	confirmed := r.URL.Query().Get("confirmed")
+	if len(confirmed) > 0 {
+		onlyConfirmed, err = strconv.ParseBool(confirmed)
+		if err != nil {
+			return nil, api.NewAPIError("Parameter 'confirmed' cannot be converted to boolean", true)
+		}
+	}
 	var address *api.Address
-	var err error
 	s.metrics.ExplorerViews.With(common.Labels{"action": "api-address"}).Inc()
 	page, pageSize, details, filter, _, _ := s.getAddressQueryParams(r, api.AccountDetailsTxidHistory, txsInAPI)
+	filter.OnlyConfirmed = onlyConfirmed
 	secondaryCoin := strings.ToLower(r.URL.Query().Get("secondary"))
 	address, err = s.api.GetAddress(addressParam, page, pageSize, details, filter, secondaryCoin)
 	if err == nil && apiVersion == apiV1 {
