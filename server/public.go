@@ -307,6 +307,7 @@ func (s *PublicServer) jsonHandler(handler func(r *http.Request, apiVersion int)
 					data = jsonError{"Internal server error", http.StatusInternalServerError}
 				}
 			}
+			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			if e, isError := data.(jsonError); isError {
 				w.WriteHeader(e.HTTPStatus)
