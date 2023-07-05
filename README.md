@@ -1,5 +1,86 @@
 [![Go Report Card](https://goreportcard.com/badge/trezor/blockbook)](https://goreportcard.com/report/trezor/blockbook)
 
+# IMPORTANT Changes needed to migrate to blockbook from flosight
+1. blockbook URL link
+2. API URIs (path)
+3. response object path for tx vin floID (for processes that need to find sender id from tx details)
+4. The link for fetching details of transactions for every ADDRESS has changed slightly
+
+For point 3
+
+We need to change
+
+vin[x].addr 
+to
+vin[x].addresses[0]
+
+SZ documentation
+
+===
+
+For UI 
+
+OLD BLOCK LINK
+https://flosight.duckdns.org/block/48fb49a89317c0852eb894b0251ae3c830621d416b2481ecd1d541d0b01e5ab8
+
+https://flosight.duckdns.org/api/block/48fb49a89317c0852eb894b0251ae3c830621d416b2481ecd1d541d0b01e5ab8
+
+NEW BLOCK LINK
+https://blockbook.ranchimall.net/block/48fb49a89317c0852eb894b0251ae3c830621d416b2481ecd1d541d0b01e5ab8
+
+https://blockbook.ranchimall.net/api/block/48fb49a89317c0852eb894b0251ae3c830621d416b2481ecd1d541d0b01e5ab8
+
+OLD tx LINK
+https://flosight.duckdns.org/tx/ae7886df36832824e0e0f37cd003150cc7222e35bc7320d226f1561a598ce39a
+
+https://flosight.duckdns.org/api/tx/ae7886df36832824e0e0f37cd003150cc7222e35bc7320d226f1561a598ce39a
+
+NEW tx LINK
+https://blockbook.ranchimall.net/tx/ae7886df36832824e0e0f37cd003150cc7222e35bc7320d226f1561a598ce39a
+
+https://blockbook.ranchimall.net/api/tx/ae7886df36832824e0e0f37cd003150cc7222e35bc7320d226f1561a598ce39a
+
+Make this change for sender address in tx API here
+
+vin[x].addr 
+to
+vin[x].addresses[0]
+
+OLD Address LINK
+https://flosight.duckdns.org/address/F9RgXE1WYxHwvejktpi6EnjnscEkpiWxvS
+
+https://flosight.duckdns.org/api/address/F9RgXE1WYxHwvejktpi6EnjnscEkpiWxvS
+
+NEW ADDRESS LINK
+https://blockbook.ranchimall.net/address/F9RgXE1WYxHwvejktpi6EnjnscEkpiWxvS
+
+https://blockbook.ranchimall.net/api/address/F9RgXE1WYxHwvejktpi6EnjnscEkpiWxvS
+
+===
+OTHER CHANGES
+OLD
+https://flosight.ranchimall.net/api/addrs/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT/txs
+
+https://flosight.ranchimall.net/api/addrs/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT/txs?from=0&to=359
+
+NEW
+https://blockbook.ranchimall.net/api/address/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT?details=basic
+
+https://blockbook.ranchimall.net/api/address/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT?details=txs
+
+with paging for address
+https://blockbook.ranchimall.net/api/address/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT?details=txs?details=txs&page=2
+
+==
+
+OLD LINK FOR DIRECT BALANCE QUERY
+https://flosight.duckdns.org/api/addr/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT/balance
+
+NO BLOCKBOOK EQUIVALENT
+THIS HAS TO BE FETCHED FROM THIS FORMAT
+https://blockbook.ranchimall.net/api/address/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT?details=basic
+
+
 # Blockbook
 
 **Blockbook** is back-end service for Trezor wallet. Main features of **Blockbook** are:
