@@ -14,8 +14,6 @@ vin[x].addr
 to
 vin[x].addresses[0]
 
-SZ documentation
-
 ===
 
 For UI 
