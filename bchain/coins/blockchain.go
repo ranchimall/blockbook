@@ -113,6 +113,7 @@ func init() {
 	BlockChainFactories["Firo"] = firo.NewFiroRPC
 	BlockChainFactories["Fujicoin"] = fujicoin.NewFujicoinRPC
 	BlockChainFactories["Flo"] = flo.NewFloRPC
+	BlockChainFactories["Flo Testnet"] = flo.NewFloRPC
 	BlockChainFactories["Bellcoin"] = bellcoin.NewBellcoinRPC
 	BlockChainFactories["Qtum"] = qtum.NewQtumRPC
 	BlockChainFactories["Viacoin"] = viacoin.NewViacoinRPC
