@@ -1,0 +1,43 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - flo
+
+jobs:
+  build-and-release:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Make
+        run: sudo apt-get update && sudo apt-get install -y make
+
+      - name: Build .deb File
+        run: |
+          make all-flo
+          mkdir -p release
+          mv ./build/*.deb ./release/
+        timeout-minutes: 130  # Adjust the timeout according to the estimated duration of "make all-flo"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: Release ${{ github.sha }}  # Use the commit SHA as the release name
+          body: |
+            Release commit: ${{ github.sha }}
+            Commit message: ${{ github.event.head_commit.message }}
+          draft: false
+          prerelease: false
+
+      - name: Upload .deb File
+        uses: actions/upload-artifact@v2
+        with:
+          name: deb-file
+          path: ./release/*.deb
