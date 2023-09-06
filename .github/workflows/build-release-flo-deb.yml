@@ -26,7 +26,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: Release ${{ github.sha }}  # Use the commit SHA as the release name
+          tag_name: ${{ github.sha }}  # Use the commit SHA as the tag name
+          release_name: Release ${{ github.sha }}  # Use the commit SHA as the release name
           body: |
             Release commit: ${{ github.sha }}
             Commit message: ${{ github.event.head_commit.message }}
