@@ -1,4 +1,5 @@
 [![Go Report Card](https://goreportcard.com/badge/trezor/blockbook)](https://goreportcard.com/report/trezor/blockbook)
+[![FLO Release](https://github.com/ranchimall/blockbook/actions/workflows/build-release-flo-deb.yml/badge.svg?branch=flo)](https://github.com/ranchimall/blockbook/actions/workflows/build-release-flo-deb.yml)
 
 # IMPORTANT Changes needed to migrate to blockbook from flosight
 1. blockbook URL link
