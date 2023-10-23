@@ -96,7 +96,39 @@ console.log(balance); // Output: 0.1663
 ```
 
 - To broadcast tx in Blockbook
-  - https://blockbook.ranchimall.net/api/sendtx/hex_tx_data 
+  - https://blockbook.ranchimall.net/api/sendtx/hex_tx_data
+
+```
+//THIS IS FLOSIGHT CODE TO BROADCAST TRANSACTION -- NOT NEEDED IN BLOCKBOOK
+function broadcastTx(signedTxHash) {
+    var http = new XMLHttpRequest();
+    var url = `${api_url}/api/tx/send`;
+    if (signedTxHash.length < 1) {
+        return false;
+    }
+    
+    var params = `{"rawtx":"${signedTxHash}"}`;
+    var result;
+    http.open('POST', url, false);
+
+    //Send the proper header information along with the request
+    http.setRequestHeader('Content-type', 'application/json');
+
+    http.onreadystatechange = function () { //Call a function when the state changes.
+        if (http.readyState == 4 && http.status == 200) {
+            console.log(http.response);
+            var txid = JSON.parse(http.response).txid.result;
+            console.log("Transaction successful! txid : " + txid);
+            result = txid;
+        } else {
+            console.log(http.responseText);
+            result = false;
+        }
+    }
+    http.send(params);
+    return result;
+}
+```
 
 # Blockbook
 
