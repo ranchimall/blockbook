@@ -72,18 +72,35 @@ https://blockbook.ranchimall.net/api/address/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT?
 
 
 ```javascript
+//Flosight
 var response = ajax("GET",`api/addrs/${addr}/txs?from=0&to=${nRequired}`);
+//Blockbook
 var response = ajax("GET",`api/address/${addr}&details=txs?pageSize=${nRequired}&page=1`);
 ```
 
 ==
 
-OLD LINK FOR DIRECT BALANCE QUERY
-https://flosight.duckdns.org/api/addr/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT/balance
+- OLD LINK FOR DIRECT BALANCE QUERY
+  https://flosight.duckdns.org/api/addr/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT/balance
 
-NO BLOCKBOOK EQUIVALENT
-THIS HAS TO BE FETCHED FROM THIS FORMAT
-https://blockbook.ranchimall.net/api/address/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT?details=basic
+  NO BLOCKBOOK EQUIVALENT
+  THIS HAS TO BE FETCHED FROM THIS FORMAT
+  https://blockbook.ranchimall.net/api/address/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT?details=basic
+
+  ```javascript
+// https://blockbook.ranchimall.net/api/address/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT?details=basic  
+// JSON data as a string
+var jsonData = '{"addrStr":"FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT","balance":0.1663,"balanceSat":16630000,"totalReceived":29.4465,"totalReceivedSat":2944650000,"totalSent":29.2802,"totalSentSat":2928020000,"unconfirmedBalance":0,"unconfirmedBalanceSat":0,"unconfirmedTxApperances":0,"txApperances":407}';
+
+// Parse the JSON data into a JavaScript object
+var dataObject = JSON.parse(jsonData);
+
+// Extract the balance value
+var balance = dataObject.balance;
+
+// Output the balance
+console.log(balance); // Output: 0.1663
+```
 
 
 # Blockbook
