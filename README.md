@@ -96,7 +96,7 @@ console.log(balance); // Output: 0.1663
 ```
 
 - To broadcast tx in Blockbook
-  - https://blockbook.ranchimall.net/api/sendtx/<hex tx data> 
+  - https://blockbook.ranchimall.net/api/sendtx/hex_tx_data 
 
 # Blockbook
 
