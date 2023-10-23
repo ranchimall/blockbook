@@ -61,7 +61,7 @@ Make this change for sender address in tx API here
   - https://blockbook.ranchimall.net/api/address/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT?details=txs
 
 - with paging for address
-  - https://blockbook.ranchimall.net/api/address/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT?details=txs?details=txs&pageSize=10&page=2
+  - https://blockbook.ranchimall.net/api/address/FBL45szT4jDQmViVirUxPeJjn1tkCDMxeT?details=txs&pageSize=10&page=2
 
 
 ```javascript
@@ -95,6 +95,8 @@ var balance = dataObject.balance;
 console.log(balance); // Output: 0.1663
 ```
 
+- To broadcast tx in Blockbook
+  - https://blockbook.ranchimall.net/api/sendtx/<hex tx data> 
 
 # Blockbook
 
