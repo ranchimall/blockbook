@@ -130,6 +130,22 @@ function broadcastTx(signedTxHash) {
 }
 ```
 
+# Websocket Connectivity issue with Nginx
+
+- Nginx needs more directives to permit Websocket traffic to pass.
+-  `proxy_set_header Upgrade $http_upgrade;` AND  `proxy_set_header Connection "upgrade";` must be set in location in nginx conf file
+
+```
+    location / {
+        proxy_pass https://0.0.0.0:98765/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+    }
+
+```
+
 # Blockbook
 
 **Blockbook** is back-end service for Trezor wallet. Main features of **Blockbook** are:
