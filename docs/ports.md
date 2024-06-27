@@ -40,6 +40,8 @@
 | BNB Smart Chain Archive          | 9165             | 9065               | 8065        | 38365 p2p, 8165 http                 |
 | Flo                              | 9166             | 9066               | 8066        | 38366                                |
 | Polis                            | 9167             | 9067               | 8067        | 38367                                |
+| Polygon                          | 9170             | 9070               | 8070        | 38370 p2p, 8170 http                 |
+| Polygon Archive                  | 9172             | 9072               | 8072        | 38372 p2p, 8172 http                 |
 | Qtum                             | 9188             | 9088               | 8088        | 38388                                |
 | Divi Project                     | 9189             | 9089               | 8089        | 38389                                |
 | CPUchain                         | 9190             | 9090               | 8090        | 38390                                |
@@ -51,16 +53,16 @@
 | eCash                            | 9197             | 9097               | 8097        | 38397                                |
 | Avalanche                        | 9198             | 9098               | 8098        | 38398 p2p                            |
 | Avalanche Archive                | 9199             | 9099               | 8099        | 38399 p2p                            |
-| Ethereum Testnet Goerli Archive  | 19106            | 19006              | 18006       | 18106 http, 18506 authrpc, 48306 p2p |
+| Ethereum Testnet Holesky         | 19116            | 19016              | 18016       | 18116 http, 18516 authrpc, 48316 p2p |
 | Bitcoin Signet                   | 19120            | 19020              | 18020       | 48320                                |
 | Bitcoin Regtest                  | 19121            | 19021              | 18021       | 48321                                |
-| Ethereum Goerli                  | 19126            | 19026              | 18026       | 18126 http, 18526 authrpc, 48326 p2p |
 | Bitcoin Testnet                  | 19130            | 19030              | 18030       | 48330                                |
 | Bitcoin Cash Testnet             | 19131            | 19031              | 18031       | 48331                                |
 | Zcash Testnet                    | 19132            | 19032              | 18032       | 48332                                |
 | Dash Testnet                     | 19133            | 19033              | 18033       | 48333                                |
 | Litecoin Testnet                 | 19134            | 19034              | 18034       | 48334                                |
 | Bitcoin Gold Testnet             | 19135            | 19035              | 18035       | 48335                                |
+| Ethereum Testnet Holesky Archive | 19136            | 19036              | 18036       | 18136 http, 18536 authrpc, 48336 p2p |
 | Dogecoin Testnet                 | 19138            | 19038              | 18038       | 48338                                |
 | Vertcoin Testnet                 | 19140            | 19040              | 18040       | 48340                                |
 | Monacoin Testnet                 | 19141            | 19041              | 18041       | 48341                                |
@@ -72,7 +74,7 @@
 | Koto Testnet                     | 19151            | 19051              | 18051       | 48351                                |
 | Decred Testnet                   | 19161            | 19061              | 18061       | 48361                                |
 | Flo Testnet                      | 19166            | 19066              | 18066       | 48366                                |
-| Ethereum Sepolia                 | 19176            | 19076              | 18076       | 18176 http, 18576 authrpc, 48376 p2p |
+| Ethereum Testnet Sepolia         | 19176            | 19076              | 18076       | 18176 http, 18576 authrpc, 48376 p2p |
 | Ethereum Testnet Sepolia Archive | 19186            | 19086              | 18086       | 18186 http, 18586 authrpc, 48386 p2p |
 | Qtum Testnet                     | 19188            | 19088              | 18088       | 48388                                |
 | Omotenashicoin Testnet           | 19189            | 19089              | 18089       | 48389                                |
