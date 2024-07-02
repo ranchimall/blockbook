@@ -9,8 +9,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/trezor/blockbook/bchain"
-	"github.com/trezor/blockbook/bchain/coins/btc"
+	"github.com/ranchimall/blockbook/bchain"
+	"github.com/ranchimall/blockbook/bchain/coins/btc"
 )
 
 var (

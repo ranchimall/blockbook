@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/martinboehm/btcutil/chaincfg"
-	"github.com/trezor/blockbook/bchain"
-	"github.com/trezor/blockbook/bchain/coins/btc"
+	"github.com/ranchimall/blockbook/bchain"
+	"github.com/ranchimall/blockbook/bchain/coins/btc"
 )
 
 func TestMain(m *testing.M) {

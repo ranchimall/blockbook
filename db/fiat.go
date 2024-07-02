@@ -10,7 +10,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/juju/errors"
 	"github.com/linxGnu/grocksdb"
-	"github.com/trezor/blockbook/common"
+	"github.com/ranchimall/blockbook/common"
 )
 
 // FiatRatesTimeFormat is a format string for storing FiatRates timestamps in rocksdb

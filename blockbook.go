@@ -17,14 +17,14 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/juju/errors"
-	"github.com/trezor/blockbook/api"
-	"github.com/trezor/blockbook/bchain"
-	"github.com/trezor/blockbook/bchain/coins"
-	"github.com/trezor/blockbook/common"
-	"github.com/trezor/blockbook/db"
-	"github.com/trezor/blockbook/fiat"
-	"github.com/trezor/blockbook/fourbyte"
-	"github.com/trezor/blockbook/server"
+	"github.com/ranchimall/blockbook/api"
+	"github.com/ranchimall/blockbook/bchain"
+	"github.com/ranchimall/blockbook/bchain/coins"
+	"github.com/ranchimall/blockbook/common"
+	"github.com/ranchimall/blockbook/db"
+	"github.com/ranchimall/blockbook/fiat"
+	"github.com/ranchimall/blockbook/fourbyte"
+	"github.com/ranchimall/blockbook/server"
 )
 
 // debounce too close requests for resync
@@ -124,6 +124,9 @@ func main() {
 	}()
 	os.Exit(mainWithExitCode())
 }
+
+var _internalServer *server.InternalServer
+var _publicServer *server.PublicServer
 
 // allow deferred functions to run even in case of fatal error
 func mainWithExitCode() int {
@@ -678,6 +681,36 @@ func waitForSignalAndShutdown(internal *server.InternalServer, public *server.Pu
 			glog.Error("rpc: shutdown error: ", err)
 		}
 	}
+}
+
+func shutdownConnections(internal *server.InternalServer, public *server.PublicServer, chain bchain.BlockChain) {
+
+	common.SetInShutdown()
+	glog.Infof("restarting process...", )
+
+	if internal != nil {
+		if err := internal.Shutdown(ctx); err != nil {
+			glog.Error("internal server: restart error: ", err)
+		}
+	}
+
+	if public != nil {
+		if err := public.Shutdown(ctx); err != nil {
+			glog.Error("public server: restart error: ", err)
+		}
+	}
+
+	if chain != nil {
+		if err := chain.Shutdown(ctx); err != nil {
+			glog.Error("rpc: restart error: ", err)
+		}
+	}
+}
+
+func restartAll(){
+	shutdownConnections(_internalServer, _publicServer, chain)
+	common.SetNotInShutdown()
+	main()
 }
 
 // computeFeeStats computes fee distribution in defined blocks

@@ -341,6 +341,11 @@ func SetInShutdown() {
 	atomic.StoreInt32(&inShutdown, 1)
 }
 
+// SetNotInShutdown sets the internal state to not in shutdown state
+func SetNotInShutdown() {
+	atomic.StoreInt32(&inShutdown, 0)
+}
+
 // IsInShutdown returns true if in application shutdown state
 func IsInShutdown() bool {
 	return atomic.LoadInt32(&inShutdown) != 0

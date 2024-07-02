@@ -9,7 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/trezor/blockbook/bchain"
+	"github.com/ranchimall/blockbook/bchain"
 )
 
 // EthereumClient wraps a client to implement the EVMClient interface

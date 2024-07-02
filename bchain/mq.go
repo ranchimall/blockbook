@@ -7,6 +7,7 @@ import (
 
 	"github.com/golang/glog"
 	zmq "github.com/pebbe/zmq4"
+	"github.com/ranchimall/blockbook"
 )
 
 // MQ is message queue listener handle
@@ -74,18 +75,24 @@ func (mq *MQ) run(callback func(NotificationType)) {
 	}()
 	mq.isRunning = true
 	repeatedError := false
+	repeatedErrorCount := 0
 	for {
 		msg, err := mq.socket.RecvMessageBytes(0)
 		if err != nil {
 			if zmq.AsErrno(err) == zmq.Errno(zmq.ETERM) || err.Error() == "Socket is closed" {
 				break
 			}
+			repeatedErrorCount = repeatedErrorCount + 1
 			// suppress logging of error for the first time
 			// programs built with Go 1.14 will receive more signals
 			// the error should be resolved by retrying the call
 			// see https://golang.org/doc/go1.14#runtime
 			if repeatedError {
 				glog.Error("MQ RecvMessageBytes error ", err, ", ", zmq.AsErrno(err))
+			}
+			//Restart the blockbook service if the error is repeated more than 10 times
+			if repeatedErrorCount >= 10 {
+				blockbook.restartAll() 
 			}
 			repeatedError = true
 			time.Sleep(100 * time.Millisecond)

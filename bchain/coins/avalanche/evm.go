@@ -10,7 +10,7 @@ import (
 	"github.com/ava-labs/coreth/interfaces"
 	"github.com/ava-labs/coreth/rpc"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/trezor/blockbook/bchain"
+	"github.com/ranchimall/blockbook/bchain"
 )
 
 // AvalancheClient wraps a client to implement the EVMClient interface

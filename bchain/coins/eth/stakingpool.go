@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/golang/glog"
 	"github.com/juju/errors"
-	"github.com/trezor/blockbook/bchain"
+	"github.com/ranchimall/blockbook/bchain"
 )
 
 func (b *EthereumRPC) initStakingPools(coinShortcut string) error {

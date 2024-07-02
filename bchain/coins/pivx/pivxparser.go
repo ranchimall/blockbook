@@ -13,8 +13,8 @@ import (
 	"github.com/martinboehm/btcd/blockchain"
 	"github.com/martinboehm/btcd/wire"
 	"github.com/martinboehm/btcutil/chaincfg"
-	"github.com/trezor/blockbook/bchain"
-	"github.com/trezor/blockbook/bchain/coins/btc"
+	"github.com/ranchimall/blockbook/bchain"
+	"github.com/ranchimall/blockbook/bchain/coins/btc"
 )
 
 // magic numbers

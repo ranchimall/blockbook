@@ -8,7 +8,7 @@ import (
 
 	"github.com/golang/glog"
 	"github.com/juju/errors"
-	"github.com/trezor/blockbook/bchain"
+	"github.com/ranchimall/blockbook/bchain"
 )
 
 type alternativeFeeProviderFee struct {
