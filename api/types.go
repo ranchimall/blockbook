@@ -232,6 +232,10 @@ type EthereumSpecific struct {
 	GasLimit          *big.Int                               `json:"gasLimit"`
 	GasUsed           *big.Int                               `json:"gasUsed,omitempty"`
 	GasPrice          *Amount                                `json:"gasPrice,omitempty"`
+	L1Fee             *big.Int                               `json:"l1Fee,omitempty"`
+	L1FeeScalar       string                                 `json:"l1FeeScalar,omitempty"`
+	L1GasPrice        *Amount                                `json:"l1GasPrice,omitempty"`
+	L1GasUsed         *big.Int                               `json:"l1GasUsed,omitempty"`
 	Data              string                                 `json:"data,omitempty"`
 	ParsedData        *bchain.EthereumParsedInputData        `json:"parsedData,omitempty"`
 	InternalTransfers []EthereumInternalTransfer             `json:"internalTransfers,omitempty"`
@@ -499,6 +503,7 @@ type BlockRaw struct {
 // BlockbookInfo contains information about the running blockbook instance
 type BlockbookInfo struct {
 	Coin                         string                       `json:"coin"`
+	Network                      string                       `json:"network"`
 	Host                         string                       `json:"host"`
 	Version                      string                       `json:"version"`
 	GitCommit                    string                       `json:"gitCommit"`

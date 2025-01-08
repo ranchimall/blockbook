@@ -33,6 +33,10 @@ export interface EthereumSpecific {
     gasLimit: number;
     gasUsed?: number;
     gasPrice?: string;
+    l1Fee?: number;
+    l1FeeScalar?: string;
+    l1GasPrice?: string;
+    l1GasUsed?: number;
     data?: string;
     parsedData?: EthereumParsedInputData;
     internalTransfers?: EthereumInternalTransfer[];
@@ -257,6 +261,7 @@ export interface InternalStateColumn {
 }
 export interface BlockbookInfo {
     coin: string;
+    network: string;
     host: string;
     version: string;
     gitCommit: string;
@@ -351,6 +356,7 @@ export interface WsBackendInfo {
 export interface WsInfoRes {
     name: string;
     shortcut: string;
+    network: string;
     decimals: number;
     version: string;
     bestHeight: number;
@@ -441,6 +447,14 @@ export interface WsMempoolFiltersReq {
     scriptType: string;
     fromTimestamp: number;
     M?: number;
+}
+export interface WsRpcCallReq {
+    from?: string;
+    to: string;
+    data: string;
+}
+export interface WsRpcCallRes {
+    data: string;
 }
 export interface MempoolTxidFilterEntries {
     entries?: { [key: string]: string };

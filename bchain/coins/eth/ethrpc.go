@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math/big"
 	"net/http"
 	"strconv"
@@ -40,6 +40,7 @@ const (
 type Configuration struct {
 	CoinName                        string `json:"coin_name"`
 	CoinShortcut                    string `json:"coin_shortcut"`
+	Network                         string `json:"network"`
 	RPCURL                          string `json:"rpc_url"`
 	RPCTimeout                      int    `json:"rpc_timeout"`
 	BlockAddressesToKeep            int    `json:"block_addresses_to_keep"`
@@ -49,6 +50,7 @@ type Configuration struct {
 	ProcessInternalTransactions     bool   `json:"processInternalTransactions"`
 	ProcessZeroInternalTransactions bool   `json:"processZeroInternalTransactions"`
 	ConsensusNodeVersionURL         string `json:"consensusNodeVersion"`
+	DisableMempoolSync              bool   `json:"disableMempoolSync,omitempty"`
 }
 
 // EthereumRPC is an interface to JSON-RPC eth service.
@@ -159,7 +161,7 @@ func (b *EthereumRPC) Initialize() error {
 		return errors.Errorf("Unknown network id %v", id)
 	}
 
-	err = b.initStakingPools(b.ChainConfig.CoinShortcut)
+	err = b.initStakingPools()
 	if err != nil {
 		return err
 	}
@@ -173,7 +175,7 @@ func (b *EthereumRPC) Initialize() error {
 func (b *EthereumRPC) CreateMempool(chain bchain.BlockChain) (bchain.Mempool, error) {
 	if b.Mempool == nil {
 		b.Mempool = bchain.NewMempoolEthereumType(chain, b.ChainConfig.MempoolTxTimeoutHours, b.ChainConfig.QueryBackendOnMempoolResync)
-		glog.Info("mempool created, MempoolTxTimeoutHours=", b.ChainConfig.MempoolTxTimeoutHours, ", QueryBackendOnMempoolResync=", b.ChainConfig.QueryBackendOnMempoolResync)
+		glog.Info("mempool created, MempoolTxTimeoutHours=", b.ChainConfig.MempoolTxTimeoutHours, ", QueryBackendOnMempoolResync=", b.ChainConfig.QueryBackendOnMempoolResync, ", DisableMempoolSync=", b.ChainConfig.DisableMempoolSync)
 	}
 	return b.Mempool, nil
 }
@@ -262,21 +264,23 @@ func (b *EthereumRPC) subscribeEvents() error {
 		}
 	}()
 
-	// new mempool transaction subscription
-	if err := b.subscribe(func() (bchain.EVMClientSubscription, error) {
-		// invalidate the previous subscription - it is either the first one or there was an error
-		b.newTxSubscription = nil
-		ctx, cancel := context.WithTimeout(context.Background(), b.Timeout)
-		defer cancel()
-		sub, err := b.RPC.EthSubscribe(ctx, b.NewTx.Channel(), "newPendingTransactions")
-		if err != nil {
-			return nil, errors.Annotatef(err, "EthSubscribe newPendingTransactions")
+	if !b.ChainConfig.DisableMempoolSync {
+		// new mempool transaction subscription
+		if err := b.subscribe(func() (bchain.EVMClientSubscription, error) {
+			// invalidate the previous subscription - it is either the first one or there was an error
+			b.newTxSubscription = nil
+			ctx, cancel := context.WithTimeout(context.Background(), b.Timeout)
+			defer cancel()
+			sub, err := b.RPC.EthSubscribe(ctx, b.NewTx.Channel(), "newPendingTransactions")
+			if err != nil {
+				return nil, errors.Annotatef(err, "EthSubscribe newPendingTransactions")
+			}
+			b.newTxSubscription = sub
+			glog.Info("Subscribed to newPendingTransactions")
+			return sub, nil
+		}); err != nil {
+			return err
 		}
-		b.newTxSubscription = sub
-		glog.Info("Subscribed to newPendingTransactions")
-		return sub, nil
-	}); err != nil {
-		return err
 	}
 
 	return nil
@@ -377,7 +381,7 @@ func (b *EthereumRPC) getConsensusVersion() string {
 		glog.Error("getConsensusVersion ", err)
 		return ""
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		glog.Error("getConsensusVersion ", err)
 		return ""
@@ -610,19 +614,24 @@ type rpcTraceResult struct {
 }
 
 func (b *EthereumRPC) getCreationContractInfo(contract string, height uint32) *bchain.ContractInfo {
-	ci, err := b.fetchContractInfo(contract)
-	if ci == nil || err != nil {
-		ci = &bchain.ContractInfo{
-			Contract: contract,
-		}
+	// do not fetch fetchContractInfo in sync, it slows it down
+	// the contract will be fetched only when asked by a client
+	// ci, err := b.fetchContractInfo(contract)
+	// if ci == nil || err != nil {
+	ci := &bchain.ContractInfo{
+		Contract: contract,
 	}
-	ci.Type = bchain.UnknownTokenType
+	// }
+	ci.Type = bchain.UnhandledTokenType
 	ci.CreatedInBlock = height
 	return ci
 }
 
 func (b *EthereumRPC) processCallTrace(call *rpcCallTrace, d *bchain.EthereumInternalData, contracts []bchain.ContractInfo, blockHeight uint32) []bchain.ContractInfo {
 	value, err := hexutil.DecodeBig(call.Value)
+	if err != nil {
+		value = new(big.Int)
+	}
 	if call.Type == "CREATE" || call.Type == "CREATE2" {
 		d.Transfers = append(d.Transfers, bchain.EthereumInternalTransfer{
 			Type:  bchain.CREATE,
@@ -834,12 +843,13 @@ func (b *EthereumRPC) GetTransactionForMempool(txid string) (*bchain.Tx, error) 
 func (b *EthereumRPC) GetTransaction(txid string) (*bchain.Tx, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), b.Timeout)
 	defer cancel()
-	var tx *bchain.RpcTransaction
+	tx := &bchain.RpcTransaction{}
 	hash := ethcommon.HexToHash(txid)
-	err := b.RPC.CallContext(ctx, &tx, "eth_getTransactionByHash", hash)
+	err := b.RPC.CallContext(ctx, tx, "eth_getTransactionByHash", hash)
 	if err != nil {
 		return nil, err
-	} else if tx == nil {
+	}
+	if *tx == (bchain.RpcTransaction{}) {
 		if b.mempoolInitialized {
 			b.Mempool.RemoveTransactionFromMempool(txid)
 		}
@@ -982,21 +992,31 @@ func (b *EthereumRPC) EthereumTypeEstimateGas(params map[string]interface{}) (ui
 
 // SendRawTransaction sends raw transaction
 func (b *EthereumRPC) SendRawTransaction(hex string) (string, error) {
+	return b.callRpcStringResult("eth_sendRawTransaction", hex)
+}
+
+// EthereumTypeGetRawTransaction gets raw transaction in hex format
+func (b *EthereumRPC) EthereumTypeGetRawTransaction(txid string) (string, error) {
+	return b.callRpcStringResult("eth_getRawTransactionByHash", txid)
+}
+
+// Helper function for calling ETH RPC with parameters and getting string result
+func (b *EthereumRPC) callRpcStringResult(rpcMethod string, args ...interface{}) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), b.Timeout)
 	defer cancel()
 	var raw json.RawMessage
-	err := b.RPC.CallContext(ctx, &raw, "eth_sendRawTransaction", hex)
+	err := b.RPC.CallContext(ctx, &raw, rpcMethod, args...)
 	if err != nil {
 		return "", err
 	} else if len(raw) == 0 {
-		return "", errors.New("SendRawTransaction: failed")
+		return "", errors.New(rpcMethod + " : failed")
 	}
 	var result string
 	if err := json.Unmarshal(raw, &result); err != nil {
 		return "", errors.Annotatef(err, "raw result %v", raw)
 	}
 	if result == "" {
-		return "", errors.New("SendRawTransaction: failed, empty result")
+		return "", errors.New(rpcMethod + " : failed, empty result")
 	}
 	return result, nil
 }
